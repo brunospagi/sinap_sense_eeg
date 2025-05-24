@@ -29,7 +29,7 @@ A complete web-based solution for processing, visualizing, and interpreting EEG 
   1633024800000,12.45,-8.32,14.56,...,10.29
 # Clone repository
 git clone https://github.com/brunospagi/sinap_sense_eeg.git
-cd eeg-analysis-platform
+cd sinap_sense_eeg
 
 # Setup environment
 python -m venv .venv
