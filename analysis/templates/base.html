@@ -57,36 +57,21 @@
             })
         })
     </script>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-     <br>
-<footer class="footer mt-auto py-4 bg-dark text-light">
+
+<footer class="footer py-4 bg-dark text-light">
     <div class="container">
         <div class="row align-items-center">
             <!-- Seção de Logos -->
             <div class="col-md-6 mb-3 mb-md-0">
                 <div class="row align-items-center g-4">
                     <div class="col-4 text-center">
-                         <img src="{% static 'img/ufpr.png' %}" alt="UFPR" class="img-fluid" style="max-height: 100px;">
+                        <img src="{% static 'img/ufpr.png' %}" alt="UFPR" class="img-fluid" style="max-height: 100px;">
                     </div>
                     <div class="col-4 text-center">
-                         <img src="{% static 'img/sept.png' %}" alt="SEPT" class="img-fluid" style="max-height: 140px;">
+                        <img src="{% static 'img/sept.png' %}" alt="SEPT" class="img-fluid" style="max-height: 140px;">
                     </div>
                     <div class="col-4 text-center">
-                         <img src="{% static 'img/sinapsense_vertical_logo.png' %}" alt="SinapSense" class="img-fluid" style="max-height: 170px;">
+                        <img src="{% static 'img/sinapsense_vertical_logo.png' %}" alt="SinapSense" class="img-fluid" style="max-height: 170px;">
                     </div>
                 </div>
             </div>
@@ -98,10 +83,11 @@
                     <ul class="list-unstyled">
                         <li class="mb-2">
                             <i class="fas fa-map-marker-alt me-2"></i>
-                            R. Dr. Alcides Vieira Arcoverde, 1225 - Jardim das Américas, Curitiba - PR, 81520-260                        </li>
+                            R. Dr. Alcides Vieira Arcoverde, 1225 - Jardim das Américas, Curitiba - PR, 81520-260
+                        </li>
                         <li class="mb-2">
                             <i class="fas fa-phone me-2"></i>
-                                (41) 3361-4905
+                            (41) 3361-4905
                         </li>
                         <li>
                             <i class="fas fa-envelope me-2"></i>
@@ -130,18 +116,27 @@
 
 <!-- Adicionar no estilo -->
 <style>
+    html, body {
+        height: 100%;
+    }
+    
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    .container-fluid {
+        flex: 1;
+    }
+    
     .footer {
         background-color: #2c3e50;
         border-top: 3px solid #0d6efd;
-    }
-    
-    .footer a:hover {
-        color: #86b7fe !important;
-        text-decoration: underline;
+        margin-top: auto;
     }
     
     .footer img {
-        opacity: 0.8;
         transition: opacity 0.3s ease;
     }
     
