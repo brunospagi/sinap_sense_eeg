@@ -28,7 +28,7 @@ A complete web-based solution for processing, visualizing, and interpreting EEG 
   Timestamp,EEG Channel 1,EEG Channel 2,...,EEG Channel 8
   1633024800000,12.45,-8.32,14.56,...,10.29
 # Clone repository
-git clone https://github.com/yourrepo/eeg-analysis-platform.git
+git clone https://github.com/brunospagi/sinap_sense_eeg.git
 cd eeg-analysis-platform
 
 # Setup environment
@@ -47,7 +47,7 @@ python manage.py migrate
 python manage.py runserver
 
 # 🧠 Cognitive State Detection Logic
-
+```
 def detect_mental_state(alpha, beta, theta, gamma):
     if beta > 1.5*alpha:
         return "High Cognitive Load 🧠🔥"
@@ -57,3 +57,5 @@ def detect_mental_state(alpha, beta, theta, gamma):
         return "Creative Flow 🎨"
     else:
         return "Neutral State ⚖️"
+```
+
