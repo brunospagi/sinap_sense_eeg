@@ -1,0 +1,94 @@
+{% extends 'base.html' %} {% block content %}
+<div class="card">
+  <div class="card-header bg-primary text-white">
+    <h3><i class="fas fa-history me-2"></i>Histórico de Exames EEG</h3>
+  </div>
+
+  <div class="card-body">
+    <!-- Filtro de datas -->
+    <form method="get" class="mb-4">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <input
+            type="date"
+            name="start_date"
+            class="form-control"
+            value="{{ request.GET.start_date }}"
+          />
+        </div>
+        <div class="col-md-4">
+          <input
+            type="date"
+            name="end_date"
+            class="form-control"
+            value="{{ request.GET.end_date }}"
+          />
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-filter me-1"></i>Filtrar
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Tabela de registros -->
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>Data</th>
+            <th>Arquivo</th>
+            <th>Idade</th>
+            <th>Sexo</th>
+            <th>Status</th>
+            <th class="text-end">Ações</th>
+            <!-- Nova coluna -->
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in eeg_records %}
+          <tr>
+            <td>{{ record.uploaded_at|date:"d/m/Y H:i" }}</td>
+            <td>{{ record.original_file.name|truncatechars:30 }}</td>
+            <td>{{ record.age|default:"-" }}</td>
+            <td>{{ record.get_sex_display|default:"-" }}</td>
+            <td>
+              {% if record.processed %}
+              <span class="badge bg-success">Processado</span>
+              {% else %}
+              <span class="badge bg-warning">Pendente</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              {% if record.processed %}
+              <a
+                href="{% url 'dashboard' record.id %}"
+                class="btn btn-sm btn-primary"
+              >
+                <i class="fas fa-chart-bar me-1"></i> Ver Resultados
+              </a>
+              {% else %}
+              <span class="text-muted">Aguardando processamento</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center">Nenhum registro encontrado</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginação -->
+    {% include 'pagination.html' %}
+  </div>
+</div>
+
+<style>
+    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+    .text-muted { color: #6c757d!important; }
+</style>
+{% endblock %}

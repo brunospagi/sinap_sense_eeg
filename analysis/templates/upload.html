@@ -1,24 +1,31 @@
 <!-- templates/upload.html -->
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="card">
-    <div class="card-header bg-primary text-white">
-        <h3>Upload de Dados EEG</h3>
-    </div>
-    <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label">{{ form.original_file.label }}</label>
-                {{ form.original_file }}
-            </div>
-            <div class="mb-3">
-                <label class="form-label">{{ form.sampling_rate.label }}</label>
-                {{ form.sampling_rate }}
-            </div>
-            <button type="submit" class="btn btn-success">Processar Dados</button>
-        </form>
-    </div>
+  <div class="card-header bg-primary text-white">
+    <h3>Upload de Dados EEG</h3>
+  </div>
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">{{ form.original_file.label }}</label>
+        {{ form.original_file }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.sampling_rate.label }}</label>
+        {{ form.sampling_rate }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.age.label }}</label>
+        {{ form.age }}
+        <small class="form-text text-muted">Idade do paciente em anos</small>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">{{ form.sex.label }}</label>
+        {{ form.sex }}
+      </div>
+      <button type="submit" class="btn btn-success">Processar Dados</button>
+    </form>
+  </div>
 </div>
 {% endblock %}

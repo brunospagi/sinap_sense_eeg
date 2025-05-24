@@ -2,6 +2,24 @@
 <div class="container-fluid">
   <div class="card border-0 shadow-lg">
     <div class="card-header bg-primary text-white">
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <div class="card bg-light">
+            <div class="card-body">
+              <h6 class="card-title text-muted">Idade</h6>
+              <p class="h4">{{ eeg_data.age|default:"-" }} anos</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-light">
+            <div class="card-body">
+              <h6 class="card-title text-muted">Sexo</h6>
+              <p class="h4">{{ eeg_data.get_sex_display|default:"-" }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="d-flex justify-content-between align-items-center">
         <h2 class="mb-0">
           <i class="fas fa-brain me-2"></i>
@@ -101,47 +119,65 @@
           <div class="row">
             <div class="col-md-4 text-center">
               <div class="display-4">
-                {% if sentiment_analysis.sentiment == "Relaxamento" %}
-                😌
-                {% elif "Estresse" in sentiment_analysis.sentiment %}
-                😰
-                {% elif "Sonolência" in sentiment_analysis.sentiment %}
-                😴
-                {% else %}
-                😐
+                {% if sentiment_analysis.sentiment == "Relaxamento" %} 😌 {%
+                elif "Estresse" in sentiment_analysis.sentiment %} 😰 {% elif
+                "Sonolência" in sentiment_analysis.sentiment %} 😴 {% else %} 😐
                 {% endif %}
               </div>
-              <h3 class="text-primary mt-2">{{ sentiment_analysis.sentiment }}</h3>
+              <h3 class="text-primary mt-2">
+                {{ sentiment_analysis.sentiment }}
+              </h3>
             </div>
             <div class="col-md-8">
               <div class="progress-stacked">
-                <div class="progress bg-danger" role="progressbar" 
-                     style="width: {{ sentiment_analysis.avg_values.delta|floatformat:2 }}%">
-                    <div class="progress-bar-text">Delta</div>
+                <div
+                  class="progress bg-danger"
+                  role="progressbar"
+                  style="width: {{ sentiment_analysis.avg_values.delta|floatformat:2 }}%"
+                >
+                  <div class="progress-bar-text">Delta</div>
                 </div>
-                <div class="progress bg-warning" role="progressbar" 
-                     style="width: {{ sentiment_analysis.avg_values.theta|floatformat:2 }}%">
-                    <div class="progress-bar-text">Theta</div>
+                <div
+                  class="progress bg-warning"
+                  role="progressbar"
+                  style="width: {{ sentiment_analysis.avg_values.theta|floatformat:2 }}%"
+                >
+                  <div class="progress-bar-text">Theta</div>
                 </div>
-                <div class="progress bg-info" role="progressbar" 
-                     style="width: {{ sentiment_analysis.avg_values.alpha|floatformat:2 }}%">
-                    <div class="progress-bar-text">Alpha</div>
+                <div
+                  class="progress bg-info"
+                  role="progressbar"
+                  style="width: {{ sentiment_analysis.avg_values.alpha|floatformat:2 }}%"
+                >
+                  <div class="progress-bar-text">Alpha</div>
                 </div>
-                <div class="progress bg-primary" role="progressbar" 
-                     style="width: {{ sentiment_analysis.avg_values.beta|floatformat:2 }}%">
-                    <div class="progress-bar-text">Beta</div>
+                <div
+                  class="progress bg-primary"
+                  role="progressbar"
+                  style="width: {{ sentiment_analysis.avg_values.beta|floatformat:2 }}%"
+                >
+                  <div class="progress-bar-text">Beta</div>
                 </div>
-                <div class="progress bg-success" role="progressbar" 
-                     style="width: {{ sentiment_analysis.avg_values.gamma|floatformat:2 }}%">
-                    <div class="progress-bar-text">Gamma</div>
+                <div
+                  class="progress bg-success"
+                  role="progressbar"
+                  style="width: {{ sentiment_analysis.avg_values.gamma|floatformat:2 }}%"
+                >
+                  <div class="progress-bar-text">Gamma</div>
                 </div>
               </div>
               <dl class="row mt-3">
                 <dt class="col-sm-3">Dominância Beta</dt>
-                <dd class="col-sm-9">{{ sentiment_analysis.avg_values.beta|floatformat:4 }} (Alerta/Atividade Mental)</dd>
-                
+                <dd class="col-sm-9">
+                  {{ sentiment_analysis.avg_values.beta|floatformat:4 }}
+                  (Alerta/Atividade Mental)
+                </dd>
+
                 <dt class="col-sm-3">Dominância Alpha</dt>
-                <dd class="col-sm-9">{{ sentiment_analysis.avg_values.alpha|floatformat:4 }} (Relaxamento/Calma)</dd>
+                <dd class="col-sm-9">
+                  {{ sentiment_analysis.avg_values.alpha|floatformat:4 }}
+                  (Relaxamento/Calma)
+                </dd>
               </dl>
             </div>
           </div>
@@ -231,7 +267,7 @@
   .card-header {
     border-radius: 0.5rem 0.5rem 0 0 !important;
   }
-  
+
   .bg-purple {
     background-color: #6f42c1 !important;
   }

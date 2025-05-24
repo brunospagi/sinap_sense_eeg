@@ -11,6 +11,8 @@ import json
 from scipy.interpolate import griddata
 import numpy as np
 from scipy.signal import butter, lfilter
+from django.views.generic import ListView
+
 
 def upload_eeg(request):
     if request.method == 'POST':
@@ -24,7 +26,7 @@ def upload_eeg(request):
     return render(request, 'upload.html', {'form': form})
 
 
-def analyze_sentiment(analyses):
+def analyze_sentiment(analyses, age=None, sex=None):
     # Cálculo das médias das potências
     avg = {
         'delta': np.mean([a.delta_power for a in analyses]),
@@ -45,6 +47,20 @@ def analyze_sentiment(analyses):
         if avg['theta'] > 0.1: sentiment += " Profundo"
     elif avg['theta'] > avg['alpha'] and avg['theta'] > avg['beta']:
         sentiment = "Sonolência/Criatividade"
+    
+    # Adicione lógica condicional baseada em idade/sexo
+    if age:
+        if age < 18:
+            sentiment += " (Jovem)"
+        elif 18 <= age <= 65:
+            sentiment += " (Adulto)"
+        else:
+            sentiment += " (Idoso)"
+    
+    if sex == 'F':
+        sentiment += " ♀"
+    elif sex == 'M':
+        sentiment += " ♂"
     
     return {
         'sentiment': sentiment,
@@ -258,3 +274,21 @@ def butter_bandpass(lowcut, highcut, fs, order=4):
     high = highcut / nyq
     b, a = butter(order, [low, high], btype='band')
     return b, a
+
+class EEGList(ListView):
+    model = EEGData
+    template_name = 'eeg_list.html'
+    context_object_name = 'eeg_records'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+        
+        if start_date and end_date:
+            queryset = queryset.filter(
+                Q(uploaded_at__date__gte=start_date) &
+                Q(uploaded_at__date__lte=end_date)
+            )
+        return queryset.order_by('-uploaded_at')
