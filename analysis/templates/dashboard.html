@@ -72,63 +72,81 @@
           </div>
         </div>
       </div>
-<div class="card border-0 shadow mt-4">
-    <div class="card-header bg-success text-white">
-        <h5 class="card-title mb-0">
+
+      <!-- Novo Gráfico de Ondas Cerebrais -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card h-100">
+            <div class="card-header bg-purple text-white">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-wave-square me-1"></i>
+                Distribuição de Ondas Cerebrais
+              </h5>
+            </div>
+            <div class="card-body">
+              <div id="brain-waves-plot">{{ brain_waves_plot|safe }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow mt-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0">
             <i class="fas fa-smile me-1"></i>
             Análise Emocional
-        </h5>
-    </div>
-    <div class="card-body">
-        <div class="row">
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
             <div class="col-md-4 text-center">
-                <div class="display-4">
-                    {% if sentiment_analysis.sentiment == "Relaxamento" %}
-                    😌
-                    {% elif "Estresse" in sentiment_analysis.sentiment %}
-                    😰
-                    {% elif "Sonolência" in sentiment_analysis.sentiment %}
-                    😴
-                    {% else %}
-                    😐
-                    {% endif %}
-                </div>
-                <h3 class="text-primary mt-2">{{ sentiment_analysis.sentiment }}</h3>
+              <div class="display-4">
+                {% if sentiment_analysis.sentiment == "Relaxamento" %}
+                😌
+                {% elif "Estresse" in sentiment_analysis.sentiment %}
+                😰
+                {% elif "Sonolência" in sentiment_analysis.sentiment %}
+                😴
+                {% else %}
+                😐
+                {% endif %}
+              </div>
+              <h3 class="text-primary mt-2">{{ sentiment_analysis.sentiment }}</h3>
             </div>
             <div class="col-md-8">
-                <div class="progress-stacked">
-                    <div class="progress bg-danger" role="progressbar" 
-                         style="width: {{ sentiment_analysis.avg_values.delta|floatformat:2 }}%">
-                        <div class="progress-bar-text">Delta</div>
-                    </div>
-                    <div class="progress bg-warning" role="progressbar" 
-                         style="width: {{ sentiment_analysis.avg_values.theta|floatformat:2 }}%">
-                        <div class="progress-bar-text">Theta</div>
-                    </div>
-                    <div class="progress bg-info" role="progressbar" 
-                         style="width: {{ sentiment_analysis.avg_values.alpha|floatformat:2 }}%">
-                        <div class="progress-bar-text">Alpha</div>
-                    </div>
-                    <div class="progress bg-primary" role="progressbar" 
-                         style="width: {{ sentiment_analysis.avg_values.beta|floatformat:2 }}%">
-                        <div class="progress-bar-text">Beta</div>
-                    </div>
-                    <div class="progress bg-success" role="progressbar" 
-                         style="width: {{ sentiment_analysis.avg_values.gamma|floatformat:2 }}%">
-                        <div class="progress-bar-text">Gamma</div>
-                    </div>
+              <div class="progress-stacked">
+                <div class="progress bg-danger" role="progressbar" 
+                     style="width: {{ sentiment_analysis.avg_values.delta|floatformat:2 }}%">
+                    <div class="progress-bar-text">Delta</div>
                 </div>
-                <dl class="row mt-3">
-                    <dt class="col-sm-3">Dominância Beta</dt>
-                    <dd class="col-sm-9">{{ sentiment_analysis.avg_values.beta|floatformat:4 }} (Alerta/Atividade Mental)</dd>
-                    
-                    <dt class="col-sm-3">Dominância Alpha</dt>
-                    <dd class="col-sm-9">{{ sentiment_analysis.avg_values.alpha|floatformat:4 }} (Relaxamento/Calma)</dd>
-                </dl>
+                <div class="progress bg-warning" role="progressbar" 
+                     style="width: {{ sentiment_analysis.avg_values.theta|floatformat:2 }}%">
+                    <div class="progress-bar-text">Theta</div>
+                </div>
+                <div class="progress bg-info" role="progressbar" 
+                     style="width: {{ sentiment_analysis.avg_values.alpha|floatformat:2 }}%">
+                    <div class="progress-bar-text">Alpha</div>
+                </div>
+                <div class="progress bg-primary" role="progressbar" 
+                     style="width: {{ sentiment_analysis.avg_values.beta|floatformat:2 }}%">
+                    <div class="progress-bar-text">Beta</div>
+                </div>
+                <div class="progress bg-success" role="progressbar" 
+                     style="width: {{ sentiment_analysis.avg_values.gamma|floatformat:2 }}%">
+                    <div class="progress-bar-text">Gamma</div>
+                </div>
+              </div>
+              <dl class="row mt-3">
+                <dt class="col-sm-3">Dominância Beta</dt>
+                <dd class="col-sm-9">{{ sentiment_analysis.avg_values.beta|floatformat:4 }} (Alerta/Atividade Mental)</dd>
+                
+                <dt class="col-sm-3">Dominância Alpha</dt>
+                <dd class="col-sm-9">{{ sentiment_analysis.avg_values.alpha|floatformat:4 }} (Relaxamento/Calma)</dd>
+              </dl>
             </div>
+          </div>
         </div>
-    </div>
-  </div>
+      </div>
       <!-- Tabela de Canais -->
       <div class="card border-0 shadow">
         <div class="card-header bg-info text-white">
@@ -201,7 +219,8 @@
 
 <style>
   #power-plot .js-plotly-plot,
-  #topomap-container .js-plotly-plot {
+  #topomap-container .js-plotly-plot,
+  #brain-waves-plot .js-plotly-plot {
     height: 400px;
   }
 
@@ -211,6 +230,10 @@
 
   .card-header {
     border-radius: 0.5rem 0.5rem 0 0 !important;
+  }
+  
+  .bg-purple {
+    background-color: #6f42c1 !important;
   }
 </style>
 {% endblock %}
