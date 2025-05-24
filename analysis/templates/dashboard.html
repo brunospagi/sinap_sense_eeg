@@ -107,6 +107,19 @@
           </div>
         </div>
       </div>
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card h-100">
+            <div class="card-header bg-info text-white">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-wave-square me-1"></i>
+                Espectrograma (Análise Tempo-Frequência)
+              </h5>
+            </div>
+            <div class="card-body">{{ spectrogram_plot|safe }}</div>
+          </div>
+        </div>
+      </div>
 
       <div class="card border-0 shadow mt-4">
         <div class="card-header bg-success text-white">
@@ -270,6 +283,10 @@
 
   .bg-purple {
     background-color: #6f42c1 !important;
+  }
+  .spectral-plot .js-plotly-plot {
+    height: 400px;
+    min-width: 100%;
   }
 </style>
 {% endblock %}

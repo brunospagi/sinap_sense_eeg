@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 import json
-from scipy.signal import butter, lfilter, iirnotch
+from scipy.signal import butter, lfilter, iirnotch , stft
 from .models import EEGChannelAnalysis
 import os
 import time
@@ -60,12 +60,30 @@ def process_eeg_data(eeg_data):
             'beta': (13, 30),
             'gamma': (30, 40)
         }
+
+        # Calcula o espectrograma
+        f, t, Zxx = stft(data, fs=fs, nperseg=256)
+            
+            # Normaliza e prepara os dados
+        spectrogram = {
+                'freq': f.tolist(),
+                'time': t.tolist(),
+                'magnitude': np.abs(Zxx).tolist(),
+                'config': {
+                    'fmin': 0,
+                    'fmax': 40,
+                    'cmap': 'Viridis'
+                }
+            }
         
         power_metrics = {}
         for banda, (low, high) in bandas.items():
             b, a = butter_bandpass(low, high, fs)
             filtered = lfilter(b, a, data)
             power_metrics[f'{banda}_power'] = np.mean(filtered**2)
+        
+        
+        
         
         # Criar registro
         EEGChannelAnalysis.objects.create(
@@ -76,6 +94,7 @@ def process_eeg_data(eeg_data):
             lowpass=json.dumps({'x': timestamp.tolist(), 'y': lowpass.tolist()}),
             bandpass=json.dumps({'x': timestamp.tolist(), 'y': bandpass.tolist()}),
             notch=json.dumps({'x': timestamp.tolist(), 'y': notch.tolist()}),
+            spectrogram_data=json.dumps(spectrogram),
             **power_metrics
         )
     

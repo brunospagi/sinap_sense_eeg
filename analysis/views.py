@@ -1,6 +1,7 @@
 # analysis/views.py
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
+import pandas as pd
 from .eeg_processor import process_eeg_data
 from .forms import EEGUploadForm
 from .models import EEGData, EEGChannelAnalysis
@@ -173,6 +174,33 @@ def dashboard(request, eeg_id):
     
     # Criar gráfico de ondas cerebrais
     brain_waves_plot = create_brain_waves_plot(analyses)
+ # Espectrograma médio
+    all_spectrograms = []
+    for analysis in analyses:
+        spectrogram = analysis.get_spectrogram()
+        if spectrogram:
+            all_spectrograms.append(spectrogram)
+    
+    if all_spectrograms:
+        # Calcula a média dos espectrogramas
+        avg_mag = np.mean([np.array(s['magnitude']) for s in all_spectrograms], axis=0)
+        
+        fig = go.Figure(data=go.Heatmap(
+            z=10 * np.log10(avg_mag),  # Conversão para dB
+            x=all_spectrograms[0]['time'],
+            y=all_spectrograms[0]['freq'],
+            colorscale='Viridis'
+        ))
+        
+        fig.update_layout(
+            title='Espectrograma Médio',
+            xaxis_title='Tempo (s)',
+            yaxis_title='Frequência (Hz)',
+            height=400
+        )
+        spectrogram_plot = fig.to_html(full_html=False)
+    else:
+        spectrogram_plot = "<div class='alert alert-info'>Dados do espectrograma não disponíveis</div>"
     
     return render(request, 'dashboard.html', {
         'eeg_data': eeg_data,
@@ -181,7 +209,8 @@ def dashboard(request, eeg_id):
         'power_plot': fig_power.to_html(full_html=False),
         'topomap_plot': get_topomap(analyses, 'Alpha'),
         'sentiment_analysis': sentiment_analysis,
-        'brain_waves_plot': brain_waves_plot  # Novo gráfico de ondas cerebrais
+        'brain_waves_plot': brain_waves_plot,  # Novo gráfico de ondas cerebrais
+        'spectrogram_plot': spectrogram_plot
     })
 
 def get_topomap(analyses, banda):
@@ -238,6 +267,31 @@ def channel_detail(request, channel_id):
         rows=5, cols=1,
         subplot_titles=['Original', 'High-pass', 'Low-pass', 'Band-pass', 'Notch']
     )
+
+    spect = make_subplots(
+        rows=5, cols=1,
+        subplot_titles=['Original', 'High-pass', 'Low-pass', 'Band-pass', 'Notch']
+    )
+
+    spectrogram = analysis.get_spectrogram()
+    
+    if spectrogram:
+            spect = go.Figure(data=go.Heatmap(
+            z=10 * np.log10(spectrogram['magnitude']),
+            x=spectrogram['time'],
+            y=spectrogram['freq'],
+            colorscale=spectrogram['config']['cmap']
+        ))
+        
+            spect.update_layout(
+            title=f'Espectrograma - {analysis.channel_name}',
+            xaxis_title='Tempo (s)',
+            yaxis_title='Frequência (Hz)',
+            height=500
+        )
+            spectrogram_plot = spect.to_html(full_html=False)
+    else:
+        spectrogram_plot = None
     
     signals = {
         'Original': json.loads(analysis.raw_signal),
@@ -260,11 +314,12 @@ def channel_detail(request, channel_id):
     
     fig.update_layout(height=1200, showlegend=False)
     fig.update_xaxes(title_text='Tempo Decorrido (s)')
-    
-    
+
+
     return render(request, 'channel_detail.html', {
         'analysis': analysis,
-        'plot_div': fig.to_html(full_html=False)
+        'plot_div': fig.to_html(full_html=False),
+        'spectrogram_plot': spectrogram_plot
     })
 
 
