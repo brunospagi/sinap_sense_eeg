@@ -63,7 +63,7 @@
             <td class="text-end">
               {% if record.processed %}
               <a
-                href="{% url 'dashboard' record.id %}"
+                href="{% url 'analysis:dashboard' record.id %}"
                 class="btn btn-sm btn-primary"
               >
                 <i class="fas fa-chart-bar me-1"></i> Ver Resultados

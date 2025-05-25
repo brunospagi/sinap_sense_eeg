@@ -13,8 +13,31 @@ from scipy.interpolate import griddata
 import numpy as np
 from scipy.signal import butter, lfilter
 from django.views.generic import ListView
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.decorators import login_required
 
 
+
+
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+    redirect_authenticated_user = True
+    
+
+@login_required
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+@login_required
 def upload_eeg(request):
     if request.method == 'POST':
         form = EEGUploadForm(request.POST, request.FILES)
@@ -26,7 +49,7 @@ def upload_eeg(request):
         form = EEGUploadForm()
     return render(request, 'upload.html', {'form': form})
 
-
+@login_required
 def analyze_sentiment(analyses, age=None, sex=None):
     # Cálculo das médias das potências
     avg = {
@@ -68,6 +91,7 @@ def analyze_sentiment(analyses, age=None, sex=None):
         'avg_values': avg
     }
 
+@login_required
 def create_brain_waves_plot(analyses):
     # Obter os dados do primeiro canal para exemplo (ou poderia calcular a média de todos os canais)
     first_channel = analyses[0]
@@ -154,6 +178,7 @@ def create_brain_waves_plot(analyses):
     
     return fig.to_html(full_html=False)
 
+@login_required
 def dashboard(request, eeg_id):
     eeg_data = EEGData.objects.get(id=eeg_id)
     analyses = EEGChannelAnalysis.objects.filter(eeg_data=eeg_data)
@@ -247,7 +272,8 @@ def get_topomap(analyses, banda):
             include_plotlyjs=True,
             div_id='dynamic-topomap',  # ID único
             config={'responsive': True})
-        
+
+@login_required        
 def update_topomap(request):
     eeg_id = request.GET.get('eeg_id')
     banda = request.GET.get('banda')
@@ -323,6 +349,7 @@ def channel_detail(request, channel_id):
     })
 
 
+@login_required
 def butter_bandpass(lowcut, highcut, fs, order=4):
     nyq = 0.5 * fs
     low = lowcut / nyq

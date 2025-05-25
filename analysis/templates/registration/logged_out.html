@@ -1,0 +1,9 @@
+<!-- templates/registration/logged_out.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="alert alert-success">
+    Você foi desconectado com sucesso.
+</div>
+<a href="{% url 'analysis:login' %}" class="btn btn-primary">Fazer Login Novamente</a>
+{% endblock %}
