@@ -202,6 +202,8 @@ def create_brain_waves_plot(analyses):
 @login_required
 def dashboard(request, eeg_id):
     eeg_data = EEGData.objects.get(id=eeg_id)
+    age = eeg_data.age
+    sex = eeg_data.sex
     analyses = EEGChannelAnalysis.objects.filter(eeg_data=eeg_data)
     bandas = ['delta', 'theta', 'alpha', 'beta', 'gamma']
     
@@ -216,7 +218,7 @@ def dashboard(request, eeg_id):
         )
     
     # Análise de sentimentos
-    sentiment_analysis = analyze_sentiment(analyses)
+    sentiment_analysis = analyze_sentiment(analyses,age,sex)
     # Criar gráfico de ondas cerebrais
     brain_waves_plot = create_brain_waves_plot(analyses)
     # Espectrograma médio
