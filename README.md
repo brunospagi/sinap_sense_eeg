@@ -78,7 +78,18 @@ Timestamp in milliseconds (will be auto-converted to seconds)
 8 EEG channels minimum
 
 Sampling rate: 250Hz recommended
+## 📦 Core Dependencies
 
+### Backend Stack
+```python
+# requirements.txt
+Django==4.2.*          # Web framework
+pandas==2.0.*          # Data manipulation
+numpy==1.24.*          # Numerical computing
+scipy==1.10.*          # Signal processing
+plotly==5.15.*         # Interactive visualizations
+python-dateutil==2.8.* # Date handling
+```
 ## 🧠 Cognitive State Detection Logic
 ```
 def detect_mental_state(alpha, beta, theta, gamma):
