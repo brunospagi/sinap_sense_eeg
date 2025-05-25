@@ -5,6 +5,7 @@ from . import views
 app_name = 'analysis'
 
 urlpatterns = [
+    path('', views.home, name='home'),  # Página inicial pública
     path('upload/', views.upload_eeg, name='upload'),
     path('dashboard/<int:eeg_id>/', views.dashboard, name='dashboard'),
     path('channel/<int:channel_id>/', views.channel_detail, name='channel_detail'),

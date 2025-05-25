@@ -4,7 +4,7 @@
   <div class="card-header">
     <h3>Análise Detalhada: {{ analysis.channel_name }}</h3>
     <a
-      href="{% url 'dashboard' analysis.eeg_data.id %}"
+      href="{% url 'analysis:dashboard' analysis.eeg_data.id %}"
       class="btn btn-secondary"
     >
       Voltar

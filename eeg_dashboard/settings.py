@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
-LOGOUT_REDIRECT_URL = 'login'  # Redireciona para a página de login
+LOGOUT_REDIRECT_URL = 'analysis:home'  # Redireciona para a página de login
 
 LOGIN_REDIRECT_URL = 'analysis:upload'  # Redireciona para a página de upload
 
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'analysis',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [

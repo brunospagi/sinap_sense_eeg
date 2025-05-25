@@ -26,7 +26,7 @@
           Análise EEG - {{ eeg_data.original_file.name|truncatechars:30 }}
         </h2>
         <div>
-          <a href="{% url 'upload' %}" class="btn btn-light">
+          <a href="{% url 'analysis:upload' %}" class="btn btn-light">
             <i class="fas fa-file-upload me-1"></i> Novo Upload
           </a>
         </div>
@@ -230,7 +230,7 @@
                 <td>{{ analysis.gamma_power|floatformat:4 }}</td>
                 <td class="text-end">
                   <a
-                    href="{% url 'channel_detail' analysis.id %}"
+                    href="{% url 'analysis:channel_detail' analysis.id %}"
                     class="btn btn-sm btn-outline-primary"
                   >
                     <i class="fas fa-search me-1"></i>

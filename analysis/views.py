@@ -16,8 +16,31 @@ from django.views.generic import ListView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q , Sum
 
-
+def home(request):
+    # Estatísticas públicas
+    stats = {
+        'total_uploads': EEGData.objects.count(),
+        'total_channels': EEGChannelAnalysis.objects.count(),
+        'total_processed': EEGData.objects.filter(processed=True).count(),
+        'total_power': EEGChannelAnalysis.objects.aggregate(
+            total=Sum('alpha_power') + Sum('beta_power') + Sum('gamma_power')
+        )['total'] or 0
+    }
+    
+    return render(request, 'home.html', {
+        'stats': stats,
+        'laboratory_info': {
+            'mission': """O SinapSense é um laboratório multidisciplinar dedicado à pesquisa em Neurociência do Consumo...""",
+            'team': [
+                {'name': 'Dr. João Silva', 'area': 'Neurociência'},
+                {'name': 'Dra. Maria Santos', 'area': 'Análise de Dados'},
+                # Adicione mais membros
+            ],
+            'partners': ['UFPR', 'SEPT', 'Empresa X']
+        }
+    })
 
 
 
@@ -44,12 +67,11 @@ def upload_eeg(request):
         if form.is_valid():
             eeg_data = form.save()
             process_eeg_data(eeg_data)
-            return redirect('dashboard', eeg_id=eeg_data.id)
+            return redirect('analysis:dashboard', eeg_id=eeg_data.id)
     else:
         form = EEGUploadForm()
     return render(request, 'upload.html', {'form': form})
 
-@login_required
 def analyze_sentiment(analyses, age=None, sex=None):
     # Cálculo das médias das potências
     avg = {
@@ -91,7 +113,6 @@ def analyze_sentiment(analyses, age=None, sex=None):
         'avg_values': avg
     }
 
-@login_required
 def create_brain_waves_plot(analyses):
     # Obter os dados do primeiro canal para exemplo (ou poderia calcular a média de todos os canais)
     first_channel = analyses[0]
@@ -196,7 +217,6 @@ def dashboard(request, eeg_id):
     
     # Análise de sentimentos
     sentiment_analysis = analyze_sentiment(analyses)
-    
     # Criar gráfico de ondas cerebrais
     brain_waves_plot = create_brain_waves_plot(analyses)
     # Espectrograma médio
@@ -349,7 +369,6 @@ def channel_detail(request, channel_id):
     })
 
 
-@login_required
 def butter_bandpass(lowcut, highcut, fs, order=4):
     nyq = 0.5 * fs
     low = lowcut / nyq

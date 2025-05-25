@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+<div class="container my-5">
+    <!-- Seção Hero -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-brain text-primary"></i> SinapSense
+            </h1>
+            <p class="lead">
+                Laboratório de Inovação em Neurociência do Consumo
+            </p>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="{% static 'img/Sinapsense_vertical.png' %}" alt="SinapSense" class="img-fluid" style="max-height: 200px;">
+        </div>
+    </div>
+
+    <!-- Estatísticas -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4"><i class="fas fa-chart-bar"></i> Dados Processados</h3>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-light h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Dados EEG Processados</h5>
+                            <p class="display-6">{{ stats.total_uploads|intcomma }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-light h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Canais Analisados</h5>
+                            <p class="display-6">{{ stats.total_channels|intcomma }}</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Adicione mais cards -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Sobre o Laboratório -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="mb-4"><i class="fas fa-flask"></i> Sobre o Laboratório</h3>
+            <div class="card bg-light">
+                <div class="card-body">
+                    <p class="lead">Missão:</p>
+                    <p>O SinapSense tem como objetivo principal desenvolver estudos e pesquisas experimentais com foco em Neurociência do Consumo...</p>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h5>Nossa Metodologia</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Abordagem multidisciplinar</li>
+                                <li><i class="fas fa-check text-success"></i> Tecnologia de ponta em EEG</li>
+                                <li><i class="fas fa-check text-success"></i> Análises quantitativas e qualitativas</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Áreas de Pesquisa</h5>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-primary">Neurociência do Consumo</span>
+                                <span class="badge bg-secondary">Comportamento do Consumidor</span>
+                                <span class="badge bg-success">Análise de Marcas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Equipe e Parceiros 
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <h4><i class="fas fa-users"></i> Nossa Equipe</h4>
+            <div class="row row-cols-2 g-4">
+                {% for member in laboratory_info.team %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ member.name }}</h6>
+                            <small class="text-muted">{{ member.area }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <h4><i class="fas fa-handshake"></i> Parceiros</h4>
+            <div class="d-flex justify-content-around align-items-center flex-wrap">
+                {% for partner in laboratory_info.partners %}
+                <img src="{% static 'img/partners/'|add:partner|add:'.png' %}" 
+                     alt="{{ partner }}" 
+                     class="img-fluid mb-3" 
+                     style="max-height: 80px;">
+                {% endfor %}
+            </div>
+        </div>
+    </div> -->
+</div>
+{% endblock %}
