@@ -61,12 +61,12 @@ def process_eeg_data(eeg_data):
         }
 
         # Calcula o espectrograma
-        f, Zxx = stft(data, fs=fs, nperseg=256)
+        f,t, Zxx = stft(data, fs=fs, nperseg=256)
             
             # Normaliza e prepara os dados
         spectrogram = {
                 'freq': f.tolist(),
-                'time': timestamp.tolist(),
+                'time': t.tolist(),
                 'magnitude': np.abs(Zxx).tolist(),
                 'config': {
                     'fmin': 0,
