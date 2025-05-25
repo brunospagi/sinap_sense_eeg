@@ -1,4 +1,20 @@
-# analysis/eeg_processor.py
+"""
+    Processa e analisa dados de EEG de um arquivo associado ao objeto eeg_data.
+    Este método realiza as seguintes etapas para cada canal de EEG:
+    1. Lê os dados brutos do arquivo CSV associado.
+    2. Ajusta o timestamp para o formato datetime apropriado.
+    3. Aplica filtros digitais (highpass, lowpass, bandpass, notch) ao sinal.
+    4. Calcula o espectrograma do sinal usando STFT.
+    5. Calcula a potência média em diferentes bandas de frequência (delta, theta, alpha, beta, gamma).
+    6. Salva os resultados processados e métricas em registros do modelo EEGChannelAnalysis.
+    7. Atualiza o status do objeto eeg_data para indicar que o processamento foi concluído.
+    Parâmetros:
+        eeg_data (EEGData): Instância contendo informações do arquivo de EEG e metadados necessários para o processamento.
+    Observações:
+        - Requer que as funções de filtro digital (butter_highpass, butter_lowpass, butter_bandpass, iirnotch) estejam implementadas.
+        - Utiliza pandas, numpy, scipy.signal e json para manipulação e análise dos dados.
+        - Os resultados são salvos no banco de dados via o modelo EEGChannelAnalysis.
+    """
 import pandas as pd
 import numpy as np
 import json
