@@ -130,8 +130,8 @@ def create_brain_waves_plot(analyses):
         normalized_signal = signal / np.max(np.abs(signal)) * 0.5
         
         fig.add_trace(go.Scatter(
-            x=timestamps[:500],  # Limitar para os primeiros 500 pontos para melhor visualização
-            y=normalized_signal[:500],
+            x=timestamps,  # Limitar para os primeiros 500 pontos para melhor visualização
+            y=normalized_signal,
             name=banda.capitalize(),
             line=dict(color=colors[banda], width=2)
         ))
@@ -174,7 +174,7 @@ def dashboard(request, eeg_id):
     
     # Criar gráfico de ondas cerebrais
     brain_waves_plot = create_brain_waves_plot(analyses)
- # Espectrograma médio
+    # Espectrograma médio
     all_spectrograms = []
     for analysis in analyses:
         spectrogram = analysis.get_spectrogram()

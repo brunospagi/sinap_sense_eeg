@@ -4,8 +4,7 @@ import numpy as np
 import json
 from scipy.signal import butter, lfilter, iirnotch , stft
 from .models import EEGChannelAnalysis
-import os
-import time
+
 
 def butter_highpass(cutoff, fs, order=4):
     nyq = 0.5 * fs
@@ -33,7 +32,7 @@ def process_eeg_data(eeg_data):
     # Ajustar o timestamp para o formato correto
     df['Timestamp'] = df['Timestamp'] / 1000  # Converter de milissegundos para segundos
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], unit='s')
-    df['Timestamp'] = df['Timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S.%f', )
+    df['Timestamp'] = df['Timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S.%f')
     
     for channel in df.columns[1:9]:
         data = df[channel].values
@@ -62,12 +61,12 @@ def process_eeg_data(eeg_data):
         }
 
         # Calcula o espectrograma
-        f, t, Zxx = stft(data, fs=fs, nperseg=256)
+        f, Zxx = stft(data, fs=fs, nperseg=256)
             
             # Normaliza e prepara os dados
         spectrogram = {
                 'freq': f.tolist(),
-                'time': t.tolist(),
+                'time': timestamp.tolist(),
                 'magnitude': np.abs(Zxx).tolist(),
                 'config': {
                     'fmin': 0,
@@ -81,9 +80,6 @@ def process_eeg_data(eeg_data):
             b, a = butter_bandpass(low, high, fs)
             filtered = lfilter(b, a, data)
             power_metrics[f'{banda}_power'] = np.mean(filtered**2)
-        
-        
-        
         
         # Criar registro
         EEGChannelAnalysis.objects.create(
