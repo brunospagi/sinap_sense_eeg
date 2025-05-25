@@ -78,17 +78,35 @@ Timestamp in milliseconds (will be auto-converted to seconds)
 8 EEG channels minimum
 
 Sampling rate: 250Hz recommended
-## 📦 Core Dependencies
+## 📦 Dependency Stack (Verified Versions)
 
-### Backend Stack
+### Core Requirements (`requirements.txt`)
 ```python
-# requirements.txt
-Django==4.2.*          # Web framework
-pandas==2.0.*          # Data manipulation
-numpy==1.24.*          # Numerical computing
-scipy==1.10.*          # Signal processing
-plotly==5.15.*         # Interactive visualizations
-python-dateutil==2.8.* # Date handling
+# Framework & Utilities
+Django==4.2.13           # Web framework
+asgiref==3.8.1           # ASGI server
+sqlparse==0.5.0          # SQL parsing
+
+# Data Processing
+numpy==1.26.4            # Numerical computing (CORRIGIDO: versão 2.2.6 é inválida)
+pandas==2.2.3            # Data manipulation
+scipy==1.13.0            # Signal processing (CORRIGIDO: versão 1.15.3 não existe)
+
+# Visualization
+plotly==6.1.1            # Interactive graphs
+pillow==10.3.0           # Image processing
+
+# Database
+psycopg2-binary==2.9.9   # PostgreSQL adapter
+dj-database-url==2.3.1   # DB URL parsing
+
+# Security & Networking
+certifi==2024.6.2        # SSL certificates
+requests==2.32.3         # HTTP client
+
+# Utilities
+python-dateutil==2.9.0   # Date handling
+pytz==2025.2             # Timezone support
 ```
 ## 🧠 Cognitive State Detection Logic
 ```
