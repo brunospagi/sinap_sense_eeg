@@ -21,9 +21,8 @@ import json
 from scipy.signal import butter, lfilter, iirnotch , stft
 from .models import EEGChannelAnalysis
 
-"""
 
-"""
+
 def butter_highpass(cutoff, fs, order=4):
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
