@@ -56,6 +56,10 @@ def process_eeg_data(eeg_data):
         timestamp = df['Timestamp'].values
         
         # Aplicar filtros
+
+        b, a = iirnotch(60, 30, fs)
+        notch = lfilter(b, a, data)
+
         b, a = butter_highpass(0.5, fs)
         highpass = lfilter(b, a, data)
         
@@ -80,7 +84,7 @@ def process_eeg_data(eeg_data):
         # Calcula o espectrograma
         f,t, Zxx = stft(data, fs=fs, nperseg=256)
             
-            # Normaliza e prepara os dados
+        # Normaliza e prepara os dados
         spectrogram = {
                 'freq': f.tolist(),
                 'time': t.tolist(),

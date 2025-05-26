@@ -384,13 +384,13 @@ def channel_detail(request, channel_id):
     
     # Criar gráfico de filtros
     fig = make_subplots(
-        rows=5, cols=1,
-        subplot_titles=['Original', 'High-pass', 'Low-pass', 'Band-pass', 'Notch']
+        rows=2, cols=1,
+        subplot_titles=['Original', 'Notch']
     )
 
     spect = make_subplots(
-        rows=5, cols=1,
-        subplot_titles=['Original', 'High-pass', 'Low-pass', 'Band-pass', 'Notch']
+        rows=2, cols=1,
+        subplot_titles=['Original', 'Notch']
     )
 
     spectrogram = analysis.get_spectrogram()
@@ -415,9 +415,6 @@ def channel_detail(request, channel_id):
     
     signals = {
         'Original': json.loads(analysis.raw_signal),
-        'High-pass': json.loads(analysis.highpass),
-        'Low-pass': json.loads(analysis.lowpass),
-        'Band-pass': json.loads(analysis.bandpass),
         'Notch': json.loads(analysis.notch)
     }
     
@@ -439,7 +436,6 @@ def channel_detail(request, channel_id):
     return render(request, 'channel_detail.html', {
         'analysis': analysis,
         'plot_div': fig.to_html(full_html=False),
-        'spectrogram_plot': spectrogram_plot
     })
 
 

@@ -43,23 +43,6 @@
 <br />
 <br />
 <br />
-<div class="card-header">
-      <h4>Espectrograma</h4>
-    </div>
-    <div class="card-body">
-      {% if spectrogram_plot %} {{ spectrogram_plot|safe }}
-      <div class="mt-3 alert alert-secondary">
-        <small>
-          <i class="fas fa-info-circle"></i>
-          Cores representam a intensidade (dB) em cada banda de frequência ao
-          longo do tempo
-        </small>
-      </div>
-      {% else %}
-      <div class="alert alert-warning">Espectrograma não disponível</div>
-      {% endif %}
-    </div>
-  </div>
 <div class="alert alert-info">
   <h5>Legenda dos Filtros:</h5>
   <ul class="list-unstyled">
