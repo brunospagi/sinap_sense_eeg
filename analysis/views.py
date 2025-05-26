@@ -19,7 +19,14 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q , Sum
 
 def home(request):
-    # Estatísticas públicas
+    """
+    View principal da aplicação. Exibe estatísticas públicas e informações institucionais do laboratório.
+    
+    Contexto Retornado:
+        - stats: Dicionário com dados agregados (total de uploads, canais, processamentos e potência total)
+        - laboratory_info: Informações institucionais (missão, equipe e parceiros)
+    """
+    # Coleta estatísticas públicas do banco de dados
     stats = {
         'total_uploads': EEGData.objects.count(),
         'total_channels': EEGChannelAnalysis.objects.count(),
@@ -45,12 +52,20 @@ def home(request):
 
 
 class CustomLoginView(LoginView):
+    """
+    View personalizada para login de usuários.
+    Herda da view padrão do Django e altera o template utilizado.
+    """
     template_name = 'registration/login.html'
     redirect_authenticated_user = True
     
 
 @login_required
 def register(request):
+    """
+    View para registro de novos usuários.
+    Acesso restrito a usuários autenticados (@login_required).
+    """
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -62,18 +77,35 @@ def register(request):
 
 @login_required
 def upload_eeg(request):
+    """
+    View para upload de arquivos EEG.
+    Processa o formulário e inicia o processamento dos dados após upload.
+    """
     if request.method == 'POST':
         form = EEGUploadForm(request.POST, request.FILES)
         if form.is_valid():
             eeg_data = form.save()
-            process_eeg_data(eeg_data)
+            process_eeg_data(eeg_data) # Processamento assíncrono recomendado para produção
             return redirect('analysis:dashboard', eeg_id=eeg_data.id)
     else:
         form = EEGUploadForm()
     return render(request, 'upload.html', {'form': form})
 
 def analyze_sentiment(analyses, age=None, sex=None):
-    # Cálculo das médias das potências
+    """
+    Analisa o estado emocional com base nas potências das bandas cerebrais.
+    
+    Parâmetros:
+        analyses (QuerySet): Conjunto de análises de canal EEG
+        age (int, opcional): Idade do participante para contextualização
+        sex (str, opcional): Sexo biológico ('M' ou 'F') para contextualização
+    
+    Retorna:
+        dict: Dicionário com:
+            - 'sentiment': Classificação textual do estado
+            - 'avg_values': Médias de potência por banda
+    """
+    # Cálculo das médias das potências por banda
     avg = {
         'delta': np.mean([a.delta_power for a in analyses]),
         'theta': np.mean([a.theta_power for a in analyses]),
@@ -84,7 +116,8 @@ def analyze_sentiment(analyses, age=None, sex=None):
 
     # Lógica de determinação de sentimentos
     sentiment = "Neutro"
-    
+
+    # Relações entre bandas para classificação
     if avg['beta'] > avg['alpha'] * 1.5:
         sentiment = "Agitação/Estresse"
         if avg['gamma'] > 0.08: sentiment += " Intensa"
@@ -94,7 +127,7 @@ def analyze_sentiment(analyses, age=None, sex=None):
     elif avg['theta'] > avg['alpha'] and avg['theta'] > avg['beta']:
         sentiment = "Sonolência/Criatividade"
     
-    # Adicione lógica condicional baseada em idade/sexo
+    # Adiciona contexto demográfico
     if age:
         if age < 18:
             sentiment += " (Jovem)"
@@ -108,13 +141,26 @@ def analyze_sentiment(analyses, age=None, sex=None):
     elif sex == 'M':
         sentiment += " ♂"
     
+    # Adiciona indicador de sexo
     return {
         'sentiment': sentiment,
         'avg_values': avg
     }
 
 def create_brain_waves_plot(analyses):
-    # Obter os dados do primeiro canal para exemplo (ou poderia calcular a média de todos os canais)
+    """
+    Gera gráfico interativo das ondas cerebrais médias.
+    
+    Passos:
+        1. Extrai dados temporais do primeiro canal como referência
+        2. Aplica filtros de banda em todos os canais
+        3. Calcula média dos sinais filtrados
+        4. Normaliza amplitudes para visualização combinada
+    
+    Retorna:
+        str: HTML do gráfico Plotly para incorporação em templates
+    """
+    # Configuração inicial usando o primeiro canal como referência
     first_channel = analyses[0]
     
     # Extrair os dados de tempo do sinal raw
@@ -124,7 +170,7 @@ def create_brain_waves_plot(analyses):
     # Criar gráfico de linhas para as bandas cerebrais
     fig = go.Figure()
     
-    # Definir cores para cada banda
+    # Paleta de cores para as diferentes bandas
     colors = {
         'delta': 'rgba(220, 53, 69, 0.8)',  # Vermelho (Bootstrap danger)
         'theta': 'rgba(255, 193, 7, 0.8)',  # Amarelo (Bootstrap warning)
@@ -133,7 +179,7 @@ def create_brain_waves_plot(analyses):
         'gamma': 'rgba(25, 135, 84, 0.8)'    # Verde (Bootstrap success)
     }
     
-    # Processar os sinais para cada banda
+    # Definição das faixas de frequência por banda
     bandas = {
         'delta': (0.5, 4),
         'theta': (4, 8),
@@ -148,6 +194,7 @@ def create_brain_waves_plot(analyses):
     # Calcular a média dos sinais de todos os canais para cada banda
     avg_signals = {}
     
+    # Processamento multicanal
     for banda, (low, high) in bandas.items():
         # Inicializar array para acumular sinais de todos os canais
         band_signals = np.zeros_like(raw_signal)
@@ -201,6 +248,17 @@ def create_brain_waves_plot(analyses):
 
 @login_required
 def dashboard(request, eeg_id):
+    """
+    Dashboard principal de análise de dados EEG.
+    
+    Parâmetros:
+        eeg_id (int): ID do registro EEG no banco de dados
+    
+    Contexto Retornado:
+        - Vários gráficos (potência, topomapa, ondas cerebrais, espectrograma)
+        - Análise de sentimento
+        - Dados brutos e processados
+    """
     eeg_data = EEGData.objects.get(id=eeg_id)
     age = eeg_data.age
     sex = eeg_data.sex
@@ -249,6 +307,7 @@ def dashboard(request, eeg_id):
     else:
         spectrogram_plot = "<div class='alert alert-info'>Dados do espectrograma não disponíveis</div>"
     
+    # Componentes do dashboard
     return render(request, 'dashboard.html', {
         'eeg_data': eeg_data,
         'analyses': analyses,
@@ -261,6 +320,17 @@ def dashboard(request, eeg_id):
     })
 
 def get_topomap(analyses, banda):
+    """
+    Gera mapa topográfico 2D da atividade cerebral para uma banda específica.
+    
+    Parâmetros:
+        analyses (QuerySet): Análises de canal para extrair dados
+        banda (str): Banda cerebral a ser visualizada (ex: 'Alpha')
+    
+    Retorna:
+        str: HTML do gráfico Plotly pronto para incorporação
+    """
+    # Mapeamento de posições dos eletrodos (coordenadas normalizadas)
     posicoes = {
         'EEG Channel 1': (0.5, 0.9),
         'EEG Channel 2': (0.3, 0.7),
@@ -271,16 +341,18 @@ def get_topomap(analyses, banda):
         'EEG Channel 7': (0.3, 0.2),
         'EEG Channel 8': (0.7, 0.2)
     }
-
+    # Extração e processamento dos dados
     valores = [getattr(a, f'{banda.lower()}_power') for a in analyses]
     x = np.array([posicoes[ch.channel_name][0] for ch in analyses])
     y = np.array([posicoes[ch.channel_name][1] for ch in analyses])
     z = np.array(valores)
-
+    
+    # Interpolação para superfície suave
     xi, yi = np.linspace(0, 1, 100), np.linspace(0, 1, 100)
     xi, yi = np.meshgrid(xi, yi)
     zi = griddata((x, y), z, (xi, yi), method='cubic')
-
+    
+    # Criação do heatmap
     fig = px.imshow(
             zi,
             x=np.linspace(0, 1, 100),
