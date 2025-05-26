@@ -1,40 +1,51 @@
 """
     Processa e analisa dados de EEG de um arquivo associado ao objeto eeg_data.
-    Este método realiza as seguintes etapas para cada canal de EEG:
-    1. Lê os dados brutos do arquivo CSV associado.
-    2. Ajusta o timestamp para o formato datetime apropriado.
-    3. Aplica filtros digitais (highpass, lowpass, bandpass, notch) ao sinal.
-    4. Calcula o espectrograma do sinal usando STFT.
-    5. Calcula a potência média em diferentes bandas de frequência (delta, theta, alpha, beta, gamma).
-    6. Salva os resultados processados e métricas em registros do modelo EEGChannelAnalysis.
-    7. Atualiza o status do objeto eeg_data para indicar que o processamento foi concluído.
-    Parâmetros:
-        eeg_data (EEGData): Instância contendo informações do arquivo de EEG e metadados necessários para o processamento.
-    Observações:
-        - Requer que as funções de filtro digital (butter_highpass, butter_lowpass, butter_bandpass, iirnotch) estejam implementadas.
-        - Utiliza pandas, numpy, scipy.signal e json para manipulação e análise dos dados.
-        - Os resultados são salvos no banco de dados via o modelo EEGChannelAnalysis.
-    """
+    ...
+"""
+
 import pandas as pd
 import numpy as np
 import json
-from scipy.signal import butter, lfilter, iirnotch , stft
+from scipy.signal import butter, lfilter, iirnotch, stft, filtfilt
 from .models import EEGChannelAnalysis
 
-
 def butter_highpass(cutoff, fs, order=4):
+    """
+    Projeta um filtro Butterworth passa-alta.
+    
+    Fórmulas:
+        1. Frequência de Nyquist: f_nyq = 0.5 * fs
+        2. Frequência normalizada: f_norm = cutoff / f_nyq
+        3. Função de transferência (contínua): 
+           |H(s)|² = 1 / (1 + (s/(2πf_c))^(2n))
+        4. Transformação bilinear para domínio digital (z)
+    """
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
     b, a = butter(order, normal_cutoff, btype='high', analog=False)
     return b, a
 
 def butter_lowpass(cutoff, fs, order=4):
+    """
+    Projeta um filtro Butterworth passa-baixa.
+    
+    Fórmulas:
+        1. Mesma normalização que o passa-alta
+        2. Resposta em frequência:
+           |H(f)| = 1 / sqrt(1 + (f/f_c)^(2n))
+    """
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     return b, a
 
 def butter_bandpass(lowcut, highcut, fs, order=4):
+    """
+    Projeta um filtro Butterworth passa-banda.
+    
+    Combinação de passa-alta (lowcut) e passa-baixa (highcut):
+        H_bandpass(s) = H_highpass(s) * H_lowpass(s)
+    """
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
@@ -42,32 +53,45 @@ def butter_bandpass(lowcut, highcut, fs, order=4):
     return b, a
 
 def process_eeg_data(eeg_data):
+    # Leitura e pré-processamento
     df = pd.read_csv(eeg_data.original_file.path)
     fs = eeg_data.sampling_rate
     
-    # Ajustar o timestamp para o formato correto
-    df['Timestamp'] = df['Timestamp'] / 1000  # Converter de milissegundos para segundos
+    # Ajuste do timestamp (Equação: t_sec = t_ms/1000)
+    df['Timestamp'] = df['Timestamp'] / 1000
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], unit='s')
-    df['Timestamp'] = df['Timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S.%f')
     
     for channel in df.columns[1:9]:
         data = df[channel].values
-        timestamp = df['Timestamp'].values
         
-        # Aplicar filtros
-        b, a = butter_highpass(0.5, fs)
-        highpass = lfilter(b, a, data)
-        
-        b, a = butter_lowpass(40, fs)
-        lowpass = lfilter(b, a, data)
-        
-        b, a = butter_bandpass(1, 30, fs)
-        bandpass = lfilter(b, a, data)
-        
+        # Aplicação de filtros com comentários matemáticos
+        # --------------------------------------------------
+        # Filtro Notch para 60 Hz (Rejeição de banda estreita)
+        # Função de transferência: H(s) = (s² + ω₀²)/(s² + (ω₀/Q)s + ω₀²)
+        # Onde: ω₀ = 2π*60, Q = 30
         b, a = iirnotch(60, 30, fs)
-        notch = lfilter(b, a, data)
+        notch = filtfilt(b, a, data)
         
-        # Calcular potências
+        # Cadeia de filtros Butterworth (aplicação sequencial)
+        # Highpass: Remove componentes < 0.5 Hz
+        b, a = butter_highpass(0.5, fs)
+        filtered = filtfilt(b, a, notch)
+        
+        # Lowpass: Remove componentes > 40 Hz
+        b, a = butter_lowpass(40, fs)
+        filtered = filtfilt(b, a, filtered)
+        
+        # Bandpass: Isola 1-30 Hz (combinação highpass + lowpass)
+        b, a = butter_bandpass(1, 30, fs)
+        bandpass = filtfilt(b, a, filtered)
+        
+        # Cálculo do Espectrograma (STFT)
+        # Equação: X(τ,ω) = ∫ x(t)w(t-τ)e^(-jωt) dt
+        # Implementação discreta: janelas de 256 amostras
+        f, t, Zxx = stft(bandpass, fs=fs, nperseg=256)
+        
+        # Cálculo de Potência em Bandas
+        # Energia = Média do quadrado do sinal (P = 1/N Σ x[n]²)
         bandas = {
             'delta': (0.5, 4),
             'theta': (4, 8),
@@ -75,38 +99,25 @@ def process_eeg_data(eeg_data):
             'beta': (13, 30),
             'gamma': (30, 40)
         }
-
-        # Calcula o espectrograma
-        f,t, Zxx = stft(data, fs=fs, nperseg=256)
-            
-            # Normaliza e prepara os dados
-        spectrogram = {
-                'freq': f.tolist(),
-                'time': t.tolist(),
-                'magnitude': np.abs(Zxx).tolist(),
-                'config': {
-                    'fmin': 0,
-                    'fmax': 40,
-                    'cmap': 'Viridis'
-                }
-            }
         
         power_metrics = {}
         for banda, (low, high) in bandas.items():
             b, a = butter_bandpass(low, high, fs)
-            filtered = lfilter(b, a, data)
-            power_metrics[f'{banda}_power'] = np.mean(filtered**2)
+            filtered_band = filtfilt(b, a, bandpass)
+            power_metrics[f'{banda}_power'] = np.mean(filtered_band**2)
         
-        # Criar registro
+        # Armazenamento com dados serializados
         EEGChannelAnalysis.objects.create(
             eeg_data=eeg_data,
             channel_name=channel,
-            raw_signal=json.dumps({'x': timestamp.tolist(), 'y': data.tolist()}),
-            highpass=json.dumps({'x': timestamp.tolist(), 'y': highpass.tolist()}),
-            lowpass=json.dumps({'x': timestamp.tolist(), 'y': lowpass.tolist()}),
-            bandpass=json.dumps({'x': timestamp.tolist(), 'y': bandpass.tolist()}),
-            notch=json.dumps({'x': timestamp.tolist(), 'y': notch.tolist()}),
-            spectrogram_data=json.dumps(spectrogram),
+            raw_signal=json.dumps({'x': df['Timestamp'].tolist(), 'y': data.tolist()}),
+            notch_filtered=json.dumps({'x': df['Timestamp'].tolist(), 'y': notch.tolist()}),
+            bandpass_filtered=json.dumps({'x': df['Timestamp'].tolist(), 'y': bandpass.tolist()}),
+            spectrogram_data=json.dumps({
+                'freq': f.tolist(),
+                'time': t.tolist(),
+                'magnitude': np.abs(Zxx).tolist()
+            }),
             **power_metrics
         )
     
